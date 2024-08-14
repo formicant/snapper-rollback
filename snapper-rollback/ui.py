@@ -4,8 +4,6 @@ from textwrap import wrap
 import curses
 
 
-_BRIGHT = 0x8
-
 _select_keys = { ord(' '), ord('\n') }    # Space, Enter
 _back_keys = { curses.KEY_BACKSPACE, 27 } # BackSpace, Esc
 
@@ -37,6 +35,8 @@ class UI:
         curses.wrapper(wrapper)
 
     def _init_attrs(self) -> None:
+        _BRIGHT = 8 if curses.COLORS > 8 else 0
+        
         curses.init_pair(1,
             curses.COLOR_WHITE,
             curses.COLOR_BLACK
@@ -49,6 +49,7 @@ class UI:
             curses.COLOR_WHITE | _BRIGHT,
             curses.COLOR_BLACK
         )
+        
         self.main_attrs = curses.color_pair(1)
         self.header_attrs = curses.color_pair(2) | curses.A_BOLD
         self.list_attrs = curses.color_pair(3)
