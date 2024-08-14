@@ -34,7 +34,7 @@ class UI:
 
     def _add_header(self) -> None:
         header = self.screen.subwin(1, self.width, 0, 0)
-        header.bkgd(' ', curses.A_REVERSE)
+        header.bkgd(' ', curses.A_REVERSE | curses.A_BOLD)
         header.addstr(0, 1, f'{self.title[:self.width - 2]:^{self.width - 2}}')
         header.refresh()
 
@@ -55,7 +55,7 @@ class UI:
         # width + 1 to prevent issue with the last line
         
         def write_item(i: int, selected: bool=False) -> None:
-            attr = curses.A_REVERSE if selected else curses.A_NORMAL
+            attr = curses.A_REVERSE | curses.A_BOLD if selected else curses.A_NORMAL
             pad.addstr(i, 0, f' {items[i]:.{width - 2}} ', attr)
         
         for i in range(item_count):

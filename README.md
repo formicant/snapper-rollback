@@ -45,6 +45,7 @@ The script implies this exact structure.
 The `config.toml` file contains the script parameters:
 - `root` — path where the BTRFS root is mounted. E.g. `/mnt/btrfs-root`
 - `exclude` — list of directory names in the BTRFS root to exclude
+  
   (directories without `@` and `@.snapshots` inside are excluded automatically)
 
 
@@ -55,7 +56,7 @@ Should also work with some earlier Python versions.
 
 Must be executed with `sudo` from the directory with `config.toml`:
 ```bash
-sudo python snapper-rollback
+sudo python3 snapper-rollback
 ```
 
 
@@ -84,10 +85,10 @@ Select snapshot to rollback to:
 
  4462 ╶ 2024-07-23 12:42:43     ok
  4472 ╶ 2024-07-23 16:00:07  t  timeline
- 4633 ┌ 2024-08-10 04:03:56  n  pacman -S -y -u --config /etc/pacman.conf
+ 4633 ┌ 2024-08-10 04:03:56  n  pacman -S -y -u --config /etc/pacman.conf --
  4634 └ 2024-08-10 04:04:04  n  bluedevil breeze breeze-gtk breeze5 discover
  4652 ╶ 2024-08-11 17:00:03  t  timeline
- 4658 ┌ 2024-08-12 14:26:22  n  pacman -S -u -y --config /etc/pacman.conf
+ 4658 ┌ 2024-08-12 14:26:22  n  pacman -S -u -y --config /etc/pacman.conf --
  4659 └ 2024-08-12 14:27:27  n  aardvark-dns containers-common cracklib
 [4674 ╶ 2024-08-14 04:00:28  t  timeline]
 ```
