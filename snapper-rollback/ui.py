@@ -4,6 +4,8 @@ from textwrap import wrap
 import curses
 
 
+_BRIGHT = 0x8
+
 _select_keys = { ord(' '), ord('\n') }    # Space, Enter
 _back_keys = { curses.KEY_BACKSPACE, 27 } # BackSpace, Esc
 
@@ -26,16 +28,36 @@ class UI:
             self.height, self.width = screen.getmaxyx()
             curses.set_escdelay(1)
             curses.curs_set(False)
+            self._init_attrs()
+            screen.bkgd(' ', self.main_attrs)
             screen.clear()
             function(self)
         
-        self.title = title
+        self.title = f' {title} '
         curses.wrapper(wrapper)
+
+    def _init_attrs(self) -> None:
+        curses.init_pair(1,
+            curses.COLOR_WHITE,
+            curses.COLOR_BLACK
+        )
+        curses.init_pair(2,
+            curses.COLOR_BLACK,
+            curses.COLOR_YELLOW | _BRIGHT
+        )
+        curses.init_pair(3,
+            curses.COLOR_WHITE | _BRIGHT,
+            curses.COLOR_BLACK
+        )
+        self.main_attrs = curses.color_pair(1)
+        self.header_attrs = curses.color_pair(2) | curses.A_BOLD
+        self.list_attrs = curses.color_pair(3)
+        self.selected_attrs = self.list_attrs | curses.A_REVERSE | curses.A_BOLD
 
     def _add_header(self) -> None:
         header = self.screen.subwin(1, self.width, 0, 0)
-        header.bkgd(' ', curses.A_REVERSE | curses.A_BOLD)
-        header.addstr(0, 1, f'{self.title[:self.width - 2]:^{self.width - 2}}')
+        header.bkgd(' ', self.header_attrs)
+        header.addstr(0, 1, f'{self.title[:self.width - 2]:─^{self.width - 2}}')
         header.refresh()
 
     def _add_selection_list(self,
@@ -53,9 +75,10 @@ class UI:
         
         pad = curses.newpad(item_count, width + 1)
         # width + 1 to prevent issue with the last line
+        pad.bkgd(' ', self.list_attrs)
         
         def write_item(i: int, selected: bool=False) -> None:
-            attr = curses.A_REVERSE | curses.A_BOLD if selected else curses.A_NORMAL
+            attr = self.selected_attrs if selected else self.list_attrs
             pad.addstr(i, 0, f' {items[i]:.{width - 2}} ', attr)
         
         for i in range(item_count):
