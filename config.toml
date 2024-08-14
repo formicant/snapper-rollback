@@ -1,0 +1,4 @@
+# snapper-rollback configuration file
+
+root = "/mnt/btrfs-root"
+exclude = []
