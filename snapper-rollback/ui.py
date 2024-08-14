@@ -26,38 +26,15 @@ class UI:
             self.height, self.width = screen.getmaxyx()
             curses.set_escdelay(1)
             curses.curs_set(False)
-            self._init_attrs()
-            screen.bkgd(' ', self.main_attrs)
             screen.clear()
             function(self)
         
         self.title = f' {title} '
         curses.wrapper(wrapper)
 
-    def _init_attrs(self) -> None:
-        _BRIGHT = 8 if curses.COLORS > 8 else 0
-        
-        curses.init_pair(1,
-            curses.COLOR_WHITE,
-            curses.COLOR_BLACK
-        )
-        curses.init_pair(2,
-            curses.COLOR_BLACK,
-            curses.COLOR_YELLOW | _BRIGHT
-        )
-        curses.init_pair(3,
-            curses.COLOR_WHITE | _BRIGHT,
-            curses.COLOR_BLACK
-        )
-        
-        self.main_attrs = curses.color_pair(1)
-        self.header_attrs = curses.color_pair(2) | curses.A_BOLD
-        self.list_attrs = curses.color_pair(3)
-        self.selected_attrs = self.list_attrs | curses.A_REVERSE | curses.A_BOLD
-
     def _add_header(self) -> None:
         header = self.screen.subwin(1, self.width, 0, 0)
-        header.bkgd(' ', self.header_attrs)
+        header.bkgd(' ', curses.A_REVERSE)
         header.addstr(0, 1, f'{self.title[:self.width - 2]:─^{self.width - 2}}')
         header.refresh()
 
@@ -76,10 +53,9 @@ class UI:
         
         pad = curses.newpad(item_count, width + 1)
         # width + 1 to prevent issue with the last line
-        pad.bkgd(' ', self.list_attrs)
         
         def write_item(i: int, selected: bool=False) -> None:
-            attr = self.selected_attrs if selected else self.list_attrs
+            attr = curses.A_REVERSE if selected else curses.A_NORMAL
             pad.addstr(i, 0, f' {items[i]:.{width - 2}} ', attr)
         
         for i in range(item_count):
