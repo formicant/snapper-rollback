@@ -60,7 +60,7 @@ sudo python3 __main__.py
 ```
 
 
-# What it does
+## What it does
 
 The script deletes the main subvolume of the selected OS permanently and replaces it with a writable clone of the selected snapshot.
 
