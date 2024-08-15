@@ -56,7 +56,7 @@ Should also work with some earlier Python versions.
 
 Must be executed with `sudo` from the directory with `config.toml`:
 ```bash
-sudo python3 snapper-rollback
+sudo python3 __main__.py
 ```
 
 

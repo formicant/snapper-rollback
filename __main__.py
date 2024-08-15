@@ -7,7 +7,8 @@ from ui import UI
 
 
 def get_config() -> dict:
-    with open('config.toml', 'rb') as config_file:
+    config_path = Path(__file__).parent / 'config.toml'
+    with open(config_path, 'rb') as config_file:
         return tomllib.load(config_file)
 
 
