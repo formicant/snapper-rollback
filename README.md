@@ -54,10 +54,15 @@ The `config.toml` file contains the script parameters:
 The script has no dependencies. Tested on Python 3.11 and 3.12.
 Should also work with some earlier Python versions.
 
-Must be executed with `sudo` from the directory with `config.toml`:
+Must be executed with `sudo`:
 ```bash
 sudo python3 __main__.py
 ```
+
+
+# What it does
+
+The script deletes the main subvolume of the selected OS permanently and replaces it with a writable clone of the selected snapshot.
 
 
 ## Script UI
