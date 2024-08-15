@@ -3,7 +3,7 @@ from xml.etree import ElementTree
 
 
 _type_symbol = {
-    'single': '╶',
+    'single': '-',
     'pre': '┌',
     'post': '└',
 }
