@@ -26,6 +26,7 @@ class UI:
             self.height, self.width = screen.getmaxyx()
             curses.set_escdelay(1)
             curses.curs_set(False)
+            curses.mousemask(curses.BUTTON1_CLICKED)
             screen.clear()
             function(self)
         
@@ -93,6 +94,19 @@ class UI:
                 return index
             elif key in _back_keys:
                 return None
+            elif key == curses.KEY_MOUSE:
+                (_, mx, my, _, button) = curses.getmouse()
+                if (button == curses.BUTTON1_CLICKED and
+                    y <= my < y + min(item_count - position, height)
+                ):
+                    i = position + my - y
+                    if 1 <= mx <= len(items[i]) + 2:
+                        write_item(index, selected=False)
+                        index = i
+                        write_item(index, selected=True)
+                        pad.refresh(position, 0, y, x, y + height - 1, x + width - 1)
+                        curses.napms(250)
+                        return index
     
     def show_selection_page(self,
             text: list[str],
@@ -107,6 +121,6 @@ class UI:
         self.screen.refresh()
         top = len(text_lines) + 3
         return self._add_selection_list(
-            top, 1, self.height - top, self.width - 2,
+            top, 1, self.height - top - 1, self.width - 2,
             items, default_index
         )
