@@ -1,5 +1,6 @@
 from pathlib import Path
 from xml.etree import ElementTree
+from datetime import datetime
 
 
 _type_symbol = {
@@ -29,7 +30,8 @@ class Snapshot:
             try:
                 info = ElementTree.parse(info_file).getroot()
                 self.type = info.find('type').text
-                self.date = info.find('date').text
+                date = info.find('date').text
+                self.date = datetime.fromisoformat(date + 'Z').astimezone()
                 description = info.find('description')
                 self.description = description.text if description is not None else ''
                 cleanup = info.find('cleanup')
@@ -40,7 +42,7 @@ class Snapshot:
                 self.is_valid = False
     
     def __repr__(self) -> str:
-        return f'{self.num:>5} {_type_symbol[self.type]} {self.date}  {_cleanup_symbol[self.cleanup]}  {self.description}'
+        return f'{self.num:>5} {_type_symbol[self.type]} {self.date:%Y-%m-%d %H:%M}  {_cleanup_symbol[self.cleanup]}  {self.description}'
 
 
 class System:
