@@ -51,6 +51,8 @@ class System:
         self.name = dir.name
         self.main_subvol = dir / '@'
         self.snapshot_subvol = dir / '@.snapshots'
+        script = dir / 'post-rollback.sh'
+        self.post_rollback_script = script if script.is_file() else None
         self.is_valid = self.main_subvol.is_dir() and self.snapshot_subvol.is_dir()
     
     def __repr__(self) -> str:

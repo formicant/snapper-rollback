@@ -17,8 +17,8 @@ def reboot() -> None:
     reboot_command.execute_without_waiting()
 
 
-def get_rollback_commands(main_subvol: Path, snapshot_subvol: Path) -> list[Command]:
-    return [
+def get_rollback_commands(main_subvol: Path, snapshot_subvol: Path, post_rollback_script: Path|None) -> list[Command]:
+    commands = [
         Command('btrfs', [
             'subvolume', 'delete',
             main_subvol.as_posix()
@@ -29,6 +29,11 @@ def get_rollback_commands(main_subvol: Path, snapshot_subvol: Path) -> list[Comm
             main_subvol.as_posix()
         ]),
     ]
+    if post_rollback_script is not None:
+        commands.append(Command('bash', [
+            post_rollback_script.as_posix()
+        ]))
+    return commands
 
 
 def show_systems_page(ui: UI, systems: list[System]) -> System|None:
@@ -92,7 +97,7 @@ def main(ui: UI) -> None:
             if snapshot is None:
                 break
             
-            rollback_commands = get_rollback_commands(system.main_subvol, snapshot.subvol)
+            rollback_commands = get_rollback_commands(system.main_subvol, snapshot.subvol, system.post_rollback_script)
             confirmation = show_confirmation_page(ui, system, snapshot, rollback_commands)
             if not confirmation:
                 continue
