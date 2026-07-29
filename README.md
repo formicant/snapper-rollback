@@ -9,8 +9,8 @@ I have multiple Linux distros installed inside a single BTRFS volume.
 
 Each OS has its own directory in the volume root with multiple subvolumes inside:
 - `@` — main subvolume mounted as `/` that is snapshotted by Snapper
-- `@var_tmp`, `@var_log`, `@var_cache` etc — miscellaneous subvolumes that are not snapshotted
-- `@.snapshots` — subvolume with Snapper snapshots
+- `@tmp`, `@log`, `@cache` etc — miscellaneous subvolumes that are not snapshotted
+- `@snapshots` — subvolume with Snapper snapshots
 - `post-rollback.sh` — script executed after every rollback (optional)
 
 The whole volume directory tree looks like this:
@@ -19,7 +19,7 @@ BTRFS root
 ├ ‘arch’ (directory)
 │  ├ ‘@’ (subvolume)
 │  ├ ... (subvolumes)
-│  ├ ‘@.snapshots’ (subvolume)
+│  ├ ‘@snapshots’ (subvolume)
 │  │  ├ ‘1’ (directory)
 │  │  │  ├ ‘info.xml’ (file)
 │  │  │  └ ‘snapshot’ (subvolume)
@@ -31,7 +31,7 @@ BTRFS root
 ├ ‘debian’ (directory)
 │  ├ ‘@’ (subvolume)
 │  ├ ... (subvolumes)
-│  └ ‘@.snapshots’ (subvolume)
+│  └ ‘@snapshots’ (subvolume)
 │     ├ ‘1’ (directory)
 │     │  ├ ‘info.xml’ (file)
 │     │  └ ‘snapshot’ (subvolume)
@@ -47,8 +47,8 @@ The script implies this exact structure.
 The `config.toml` file contains the script parameters:
 - `root` — path where the BTRFS root is mounted. E.g. `/mnt/btrfs-root`
 - `exclude` — list of directory names in the BTRFS root to exclude
-  
-  (directories without `@` and `@.snapshots` inside are excluded automatically)
+
+  (directories without `@` and `@snapshots` inside are excluded automatically)
 
 
 ## Running the script
@@ -108,7 +108,7 @@ Rollback to snapshot:
 
 # /usr/bin/btrfs subvolume delete /mnt/btrfs-root/arch/@
 # /usr/bin/btrfs subvolume snapshot /mnt/btrfs-
-  root/arch/@.snapshots/4674/snapshot /mnt/btrfs-root/arch/@
+  root/arch/@snapshots/4674/snapshot /mnt/btrfs-root/arch/@
 # /usr/bin/bash /mnt/btrfs-root/arch/post-rollback.sh
 
 Are you sure?
@@ -120,7 +120,7 @@ Are you sure?
 After the confirmation, the script prints the output of the commands and suggests rebooting:
 ```
 > Delete subvolume 12980 (no-commit): '/mnt/btrfs-root/arch/@'
-> Create snapshot of '/mnt/btrfs-root/arch/@.snapshots/4674/snapshot'
+> Create snapshot of '/mnt/btrfs-root/arch/@snapshots/4674/snapshot'
   in '/mnt/btrfs-root/arch/@'
 
 Rollback completed
