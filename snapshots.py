@@ -15,6 +15,18 @@ _cleanup_symbol = {
 }
 
 
+def get_text(
+    parent: ElementTree.Element[str], name: str, default: str | None = None
+) -> str:
+    element = parent.find(name)
+    if default is None:
+        assert element is not None
+        assert element.text is not None
+    elif element is None or element.text is None:
+        return default
+    return element.text
+
+
 class Snapshot:
     def __init__(self, dir: Path):
         self.dir = dir
@@ -28,20 +40,21 @@ class Snapshot:
         if self.is_valid:
             try:
                 info = ElementTree.parse(info_file).getroot()
-                self.type = info.find("type").text
-                date = info.find("date").text
+                self.type = get_text(info, "type")
+                date = get_text(info, "date")
                 self.date = datetime.fromisoformat(date + "Z").astimezone()
-                description = info.find("description")
-                self.description = description.text if description is not None else ""
-                cleanup = info.find("cleanup")
-                self.cleanup = cleanup.text if cleanup is not None else ""
-                if info.find("num").text != dir.name:
+                self.description = get_text(info, "description", default="")
+                self.cleanup = get_text(info, "cleanup", default="")
+                if get_text(info, "num") != dir.name:
                     self.is_valid = False
-            except:
+            except Exception:
                 self.is_valid = False
 
     def __repr__(self) -> str:
-        return f"{self.num:>5} {_type_symbol[self.type]} {self.date:%Y-%m-%d %H:%M}  {_cleanup_symbol[self.cleanup]}  {self.description}"
+        return (
+            f"{self.num:>5} {_type_symbol[self.type]} {self.date:%Y-%m-%d %H:%M}"
+            f"  {_cleanup_symbol[self.cleanup]}  {self.description}"
+        )
 
 
 class System:

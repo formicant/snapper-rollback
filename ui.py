@@ -1,25 +1,30 @@
 from __future__ import annotations
-from typing import Callable
-from textwrap import wrap
+
 import curses
+from collections.abc import Callable
+from textwrap import wrap
 
-
-_select_keys = { ord(' '), ord('\n') }    # Space, Enter
-_back_keys = { curses.KEY_BACKSPACE, 27 } # BackSpace, Esc
+_select_keys = {ord(" "), ord("\n")}  # Space, Enter
+_back_keys = {curses.KEY_BACKSPACE, 27}  # BackSpace, Esc
 
 
 def _wrap_text(text: list[str], width: int) -> list[str]:
     lines = []
     for paragraph in text:
-        if paragraph == '':
-            lines.append('')
+        if paragraph == "":
+            lines.append("")
         else:
-            wrapped = wrap(paragraph, width, subsequent_indent='  ')
+            wrapped = wrap(paragraph, width, subsequent_indent="  ")
             lines.extend(wrapped)
     return lines
 
 
 class UI:
+    title: str
+    height: int
+    width: int
+    screen: curses.window
+
     def __init__(self, title: str, function: Callable[[UI], None]):
         def wrapper(screen: curses.window):
             self.screen = screen
@@ -29,42 +34,45 @@ class UI:
             curses.mousemask(curses.BUTTON1_CLICKED)
             screen.clear()
             function(self)
-        
-        self.title = f' {title} '
+
+        self.title = f" {title} "
         curses.wrapper(wrapper)
 
     def _add_header(self) -> None:
         header = self.screen.subwin(1, self.width, 0, 0)
-        header.bkgd(' ', curses.A_REVERSE)
-        header.addstr(0, 1, f'{self.title[:self.width - 2]:─^{self.width - 2}}')
+        header.bkgd(" ", curses.A_REVERSE)
+        header.addstr(0, 1, f"{self.title[: self.width - 2]:─^{self.width - 2}}")
         header.refresh()
 
-    def _add_selection_list(self,
-            y: int, x: int,
-            height: int, width: int,
-            items: list[str],
-            default_index: int
-    ) -> int|None:
+    def _add_selection_list(
+        self,
+        y: int,
+        x: int,
+        height: int,
+        width: int,
+        items: list[str],
+        default_index: int,
+    ) -> int | None:
         item_count = len(items)
         if item_count == 0:
-            self.screen.addstr(y, x, ' (no items) ')
+            self.screen.addstr(y, x, " (no items) ")
             while self.screen.getch() not in _back_keys:
                 pass
             return None
-        
+
         pad = curses.newpad(item_count, width + 1)
         # width + 1 to prevent issue with the last line
-        
-        def write_item(i: int, selected: bool=False) -> None:
+
+        def write_item(i: int, selected: bool = False) -> None:
             attr = curses.A_REVERSE if selected else curses.A_NORMAL
-            pad.addstr(i, 0, f' {items[i]:.{width - 2}} ', attr)
-        
+            pad.addstr(i, 0, f" {items[i]:.{width - 2}} ", attr)
+
         for i in range(item_count):
             write_item(i)
-        
+
         index = default_index
         position = 0
-        
+
         while True:
             if height == 1:
                 position = index
@@ -72,11 +80,11 @@ class UI:
                 position = max(0, index - 1)
             elif index > position + height - 2:
                 position = min(item_count - height, index - height + 2)
-            
+
             write_item(index, selected=True)
             pad.refresh(position, 0, y, x, y + height - 1, x + width - 1)
             write_item(index, selected=False)
-            
+
             key = self.screen.getch()
             if key == curses.KEY_UP:
                 index = max(0, index - 1)
@@ -96,8 +104,8 @@ class UI:
                 return None
             elif key == curses.KEY_MOUSE:
                 (_, mx, my, _, button) = curses.getmouse()
-                if (button == curses.BUTTON1_CLICKED and
-                    y <= my < y + min(item_count - position, height)
+                if button == curses.BUTTON1_CLICKED and y <= my < y + min(
+                    item_count - position, height
                 ):
                     i = position + my - y
                     if 1 <= mx <= len(items[i]) + 2:
@@ -107,12 +115,10 @@ class UI:
                         pad.refresh(position, 0, y, x, y + height - 1, x + width - 1)
                         curses.napms(250)
                         return index
-    
-    def show_selection_page(self,
-            text: list[str],
-            items: list[str],
-            default_index: int=0
-    ) -> int|None:
+
+    def show_selection_page(
+        self, text: list[str], items: list[str], default_index: int = 0
+    ) -> int | None:
         self.screen.clear()
         self._add_header()
         text_lines = _wrap_text(text, self.width - 2)
@@ -121,6 +127,5 @@ class UI:
         self.screen.refresh()
         top = len(text_lines) + 3
         return self._add_selection_list(
-            top, 1, self.height - top - 1, self.width - 2,
-            items, default_index
+            top, 1, self.height - top - 1, self.width - 2, items, default_index
         )
